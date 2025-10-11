@@ -1,0 +1,27 @@
+# ASH Config:
+ash-config:
+    prompt: "Loc: $~ >"
+
+# Basic alias / command
+openDevFolder:
+    cmd: open ~/Documents/Dev
+
+# Custom multi-line command
+runServer:
+    cmd: |
+        x = find . -iname "main.py"
+        python3 x
+
+# Nested commands
+scan:
+    cmd: nmap $1 # Runs with `scan`
+    subcmd:
+        os:
+            cmd: nmap -o $1 # Runs with `scan:os`
+        port:
+            cmd: nmap -sP $1 # Runs with `scan:port`
+            subcmd:
+                web:
+                    cmd: nmap -sP $1 -p 80, 443
+
+
