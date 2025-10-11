@@ -2,6 +2,9 @@
 
 ## MVP:
 - [ ] Add parameter substitution
+- [ ] Add plugin infrastructure
+
+## MVP 2:
 - [ ] Add basic configs
     - [ ] Customizable PS1
 - [ ] Autocomplete / Suggestions
