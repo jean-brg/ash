@@ -21,11 +21,11 @@ if len(sys.argv) < 2:
 ashCommand = sys.argv[1]
 ashArgs = sys.argv[2:]
 
-if ashCommand.split(":")[0] in commandLegend.keys():
+if ashCommand.split(ashConfig["compound-separator"])[0] in commandLegend.keys():
     try:
-        if ":" in ashCommand:
+        if ashConfig["compound-separator"] in ashCommand:
             # Compound Command
-            commandKeys = ashCommand.split(":")
+            commandKeys = ashCommand.split(ashConfig["compound-separator"])
             commandNode = commandLegend
             
             for idx, key in enumerate(commandKeys):
@@ -43,7 +43,12 @@ if ashCommand.split(":")[0] in commandLegend.keys():
         for argIndex, arg in enumerate(ashArgs):
             shellCommand = shellCommand.replace(f"${argIndex + 1}", arg)
 
-        subprocess.run(shellCommand, shell=True)
+        if ashConfig["confirm-execution"]:
+            runExecusion = input(f"Run \"{shellCommand}\"? (Enter/n) ")
+            if runExecusion != "": 
+                print("[Execution Terminated]")
+                os._exit(1)
+        subprocess.run(shellCommand, shell=True, executable=ashConfig["shell-executable"])
 
     except:
         print(f"Error - Command \"{ashCommand}\" not recognized as a custom command (No `cmd:` in YAML)")

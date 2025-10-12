@@ -5,8 +5,9 @@
 - [X] Add plugin infrastructure
 
 ## MVP 2:
-- [ ] Add basic configs
+- [X] Add basic configs
 - [ ] Autocomplete / Suggestions
+- [ ] Find a way to ensure all paramters have been filled in
 
 
 ## Potential Future Plans:

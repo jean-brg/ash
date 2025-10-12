@@ -1,6 +1,8 @@
 # ASH Config:
 ash-config:
-    prompt: "Loc: $~ >"
+    compound-separator: ":"
+    shell-executable: "/bin/zsh"
+    confirm-execution: False
 
 # Basic alias / command
 openDevFolder:
@@ -11,6 +13,12 @@ runServer:
     cmd: |
         x = find . -iname "main.py"
         python3 x
+
+gitFullCommit:
+    cmd: |
+        git add .
+        git commit -m "$1"
+        git push -u origin
 
 # Nested commands
 scan:
