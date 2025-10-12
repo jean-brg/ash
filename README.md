@@ -1,9 +1,11 @@
 # ASH - AutoShell
 
 ## MVP:
-- [ ] Add parameter substitution
+- [X] Add parameter substitution
+- [X] Add plugin infrastructure
+
+## MVP 2:
 - [ ] Add basic configs
-    - [ ] Customizable PS1
 - [ ] Autocomplete / Suggestions
 
 

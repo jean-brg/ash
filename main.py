@@ -2,7 +2,7 @@
 import os
 import yaml
 import subprocess
-import json
+import sys
 
 # INIT
 commandLegend = {}
@@ -13,52 +13,39 @@ with open("./ash.config.yaml", "r") as ashConfigFile:
     del rawCommandLegend["ash-config"]
     commandLegend = rawCommandLegend
 
-# # PROMPT HANDLER
-# PROMPT_LEGEND = {
-#     "\u": "username",
-#     "\h": "hostname?",
-#     "\H": "full hostname",
-#     "\w": "Full working dir",
-#     "\W": "Basename working dr"
-# }
-# def parsePrompt(rawPrompt):
-#     for key in PROMPT_LEGEND.keys():
-#         rawPrompt.replace(key, )
-
 # LOGIC
-while True:
+if len(sys.argv) < 2: 
+    print("Usage: ash <command> <arguments>")
+    exit()
+
+ashCommand = sys.argv[1]
+ashArgs = sys.argv[2:]
+
+if ashCommand.split(":")[0] in commandLegend.keys():
     try:
-        userEnteredCommand = input(ashConfig["prompt"])
-        terminalCommand, *terminalArgs = userEnteredCommand.split(" ")
+        if ":" in ashCommand:
+            # Compound Command
+            commandKeys = ashCommand.split(":")
+            commandNode = commandLegend
+            
+            for idx, key in enumerate(commandKeys):
+                commandNode = commandNode.get(key)
+                if commandNode is None:
+                    break
+                if idx < len(commandKeys) - 1:
+                    commandNode = commandNode.get('subcmd', {})
+            shellCommand = commandNode.get('cmd') if isinstance(commandNode, dict) else None
 
-        if terminalCommand == "ash-exit" or terminalCommand == "!!": break
-        
-        if terminalCommand.split(":")[0] in commandLegend.keys():
-            try:
-                if ":" in terminalCommand:
-                    terminalCommandRoot, *terminalCommandBranch = terminalCommand.split(":")
-                    # Compound Command
-
-                    keys = terminalCommand.split(":")
-                    node = commandLegend
-                    
-                    for idx, key in enumerate(keys):
-                        node = node.get(key)
-                        if node is None:
-                            break
-                        if idx < len(keys) - 1:
-                            node = node.get('subcmd', {})
-                    cmd = node.get('cmd') if isinstance(node, dict) else None
-
-                    print(f"Custom: {terminalCommand}; CMD: {cmd}")
-                else:
-                    # Basic Command
-                    print(f"Custom: {terminalCommand}; CMD: {commandLegend[terminalCommand]['cmd']}")
-            except:
-                print(f"Error - \"{terminalCommand}\" is not recognized as a custom command (No `cmd:` in YAML)")
         else:
-            print(f"Native: {terminalCommand}; CMD: [Native]")
+            # Basic Command
+            shellCommand = commandLegend[ashCommand]["cmd"]
 
-    except KeyboardInterrupt:
-        print("\n[Cancelled]")
-        break
+        for argIndex, arg in enumerate(ashArgs):
+            shellCommand = shellCommand.replace(f"${argIndex + 1}", arg)
+
+        subprocess.run(shellCommand, shell=True)
+
+    except:
+        print(f"Error - Command \"{ashCommand}\" not recognized as a custom command (No `cmd:` in YAML)")
+else:
+    print(f"Error : Command \"{ashCommand}\" not found in ASH")
