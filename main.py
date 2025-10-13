@@ -4,7 +4,7 @@ import yaml
 import subprocess
 import sys
 
-# INIT
+# INITIALIZER
 commandLegend = {}
 ashConfig = {}
 with open("./ash.config.yaml", "r") as ashConfigFile:
@@ -13,7 +13,17 @@ with open("./ash.config.yaml", "r") as ashConfigFile:
     del rawCommandLegend["ash-config"]
     commandLegend = rawCommandLegend
 
-# LOGIC
+# AUTOCOMPLETE PARSER
+def fetchCommandKeys(commandObject, commandPrefix = ""):
+    for commandKey, commandValue in commandObject.items():
+        commandFullKey = f"{commandPrefix}:{commandKey}" if commandPrefix else commandKey
+        yield commandFullKey
+        if "subcmd" in commandValue:
+            yield from fetchCommandKeys(commandValue["subcmd"], commandFullKey)
+
+autocompleteLegend = list(fetchCommandKeys(commandLegend, ""))
+
+# ARGUMENT PARSER
 if len(sys.argv) < 2: 
     print("Usage: ash <command> <arguments>")
     exit()
@@ -21,6 +31,7 @@ if len(sys.argv) < 2:
 ashCommand = sys.argv[1]
 ashArgs = sys.argv[2:]
 
+# COMMAND PARSER
 if ashCommand.split(ashConfig["compound-separator"])[0] in commandLegend.keys():
     try:
         if ashConfig["compound-separator"] in ashCommand:
@@ -53,4 +64,4 @@ if ashCommand.split(ashConfig["compound-separator"])[0] in commandLegend.keys():
     except:
         print(f"Error - Command \"{ashCommand}\" not recognized as a custom command (No `cmd:` in YAML)")
 else:
-    print(f"Error : Command \"{ashCommand}\" not found in ASH")
+    print(f"Error - Command \"{ashCommand}\" not found in ASH")
