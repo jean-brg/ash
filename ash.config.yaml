@@ -23,11 +23,10 @@ gitFullCommit:
 # Nested commands
 scan:
     cmd: nmap $1 # Runs with `scan`
-    subcmd:
-        os:
-            cmd: nmap -o $1 # Runs with `scan:os`
-        port:
-            cmd: nmap -sP $1 # Runs with `scan:port`
-            subcmd:
-                web:
-                    cmd: nmap -sP $1 -p 80, 443
+    $desc: "Run nmap on a specified target"
+    os:
+        cmd: nmap -o $1 # Runs with `scan:os`
+    port:
+        cmd: nmap -sP $1 # Runs with `scan:port`
+        web:
+            cmd: nmap -sP $1 -p 80, 443

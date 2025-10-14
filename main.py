@@ -15,14 +15,16 @@ with open("./ash.config.yaml", "r") as ashConfigFile:
     commandLegend = rawCommandLegend
 
 # AUTOCOMPLETE PARSER
-def fetchCommandKeys(commandObject, commandPrefix = ""):
-    for commandKey, commandValue in commandObject.items():
-        commandFullKey = f"{commandPrefix}:{commandKey}" if commandPrefix else commandKey
-        yield commandFullKey
-        if "subcmd" in commandValue:
-            yield from fetchCommandKeys(commandValue["subcmd"], commandFullKey)
+def flattenCommandLegend(commandObject, commandPrefix = ""):
+    for item in commandObject.items():
+        if "cmd" in item[1].keys():
+            yield (f"{commandPrefix}:{item[0]}" if commandPrefix else item[0], item[1]["cmd"])
+        subCommands = [subcmd for subcmd in item[1].keys() if subcmd != "cmd" and not subcmd.startswith("$")]
+        if len(subCommands) >= 1:
+            for subcmd in subCommands:
+                yield from flattenCommandLegend({subcmd: commandObject[item[0]][subcmd]}, f"{commandPrefix}:{item[0]}" if commandPrefix else item[0])
 
-autocompleteLegend = list(fetchCommandKeys(commandLegend, ""))
+flatCommandLegend = list(flattenCommandLegend(commandLegend, ""))
 
 # ARGUMENT PARSER
 if len(sys.argv) < 2: 
@@ -34,6 +36,7 @@ ashArgs = sys.argv[2:]
 
 # COMMAND PARSER
 if ashCommand.split(ashConfig["compound-separator"])[0] in commandLegend.keys():
+    # CUSTOM COMMANDS
     try:
         if ashConfig["compound-separator"] in ashCommand:
             # COMPOUND COMMAND HANDLER
@@ -73,5 +76,9 @@ if ashCommand.split(ashConfig["compound-separator"])[0] in commandLegend.keys():
 
     except:
         print(f"Error - Command \"{ashCommand}\" failed to execute")
+elif ashCommand in []:
+    # BUILT-IN COMMANDS
+    pass
+
 else:
     print(f"Error - Command \"{ashCommand}\" not found in ASH")
