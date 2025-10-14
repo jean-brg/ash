@@ -3,6 +3,7 @@ import os
 import yaml
 import subprocess
 import sys
+import re
 
 # INITIALIZER
 commandLegend = {}
@@ -35,7 +36,7 @@ ashArgs = sys.argv[2:]
 if ashCommand.split(ashConfig["compound-separator"])[0] in commandLegend.keys():
     try:
         if ashConfig["compound-separator"] in ashCommand:
-            # Compound Command
+            # COMPOUND COMMAND HANDLER
             commandKeys = ashCommand.split(ashConfig["compound-separator"])
             commandNode = commandLegend
             
@@ -48,20 +49,29 @@ if ashCommand.split(ashConfig["compound-separator"])[0] in commandLegend.keys():
             shellCommand = commandNode.get('cmd') if isinstance(commandNode, dict) else None
 
         else:
-            # Basic Command
+            # BASIC COMMAND HANDLER
             shellCommand = commandLegend[ashCommand]["cmd"]
 
-        for argIndex, arg in enumerate(ashArgs):
-            shellCommand = shellCommand.replace(f"${argIndex + 1}", arg)
+        # ARGUMENT MATCHER
+        argMatches = [int(match) for match in re.findall("\$([0-9]+)", shellCommand)]
+        if len(ashArgs) < max(argMatches):
+            print(f"Error - Command \"{ashCommand}\" requires {len(argMatches)} arguments, but was given {len(ashArgs)}")
+            os._exit(1)
 
+        for argIndex in argMatches:
+            shellCommand = shellCommand.replace(f"${argIndex}", ashArgs[argIndex - 1])
+
+        # EXECUTION CONFIRMATION
         if ashConfig["confirm-execution"]:
             runExecusion = input(f"Run \"{shellCommand}\"? (Enter/n) ")
             if runExecusion != "": 
                 print("[Execution Terminated]")
                 os._exit(1)
+
+        # EXECUTION
         subprocess.run(shellCommand, shell=True, executable=ashConfig["shell-executable"])
 
     except:
-        print(f"Error - Command \"{ashCommand}\" not recognized as a custom command (No `cmd:` in YAML)")
+        print(f"Error - Command \"{ashCommand}\" failed to execute")
 else:
     print(f"Error - Command \"{ashCommand}\" not found in ASH")

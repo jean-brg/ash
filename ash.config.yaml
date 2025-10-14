@@ -31,5 +31,3 @@ scan:
             subcmd:
                 web:
                     cmd: nmap -sP $1 -p 80, 443
-
-

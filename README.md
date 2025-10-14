@@ -8,7 +8,7 @@
 ### MVP 2:
 - [X] Add basic configs
 - [>] Autocomplete / Suggestions
-- [ ] Find a way to ensure all paramters have been filled in
+- [X] Find a way to ensure all paramters have been filled in
 - [ ] Add the `ash ash-source` feature 
     - Source/dot-source every function into the current shell to act as native functions
 
