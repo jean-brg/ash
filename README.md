@@ -18,6 +18,35 @@ As for where to put these files on your machine, these locations are suggested (
 - Windows: `%APPDATA%\ash\`
 - Linux: `~/.config/ash/` or `/usr/local/share/ash/`
 
+## Installation
+### 1. Clone the repository:
+```shell
+git clone https://github.com/jean-brg/ash.git
+cd ash
+```
+
+### 2. Add ASH to your shell
+Add the following function to your shell configuration file  
+(~/.zshrc for Zsh, ~/.bashrc or ~/.bash_profile for Bash):
+```
+ash() {
+    python3 /path/to/ash.py "$@"
+}
+```
+Then restart your terminal or run:
+```shell
+source ~/.zshrc    # or ~/.bashrc
+```
+
+### 3. Optional: Copy the sample commands
+```shell
+cp ash.config.sample.yaml ash.config.yaml
+```
+You can now edit `ash.config.yaml` to add your own commands.
+
+### 4. Optional: Set up `ash-source`
+See below for detail
+
 ## Using ash-source
 ### What is ash-source
 The `ash-source` command imports your ASH commands into the current shell to  
@@ -29,18 +58,21 @@ Due to Python’s process isolation, shell functions cannot persist automaticall
 Therefore, `ash-source` needs to be run once per shell session, or added to your shell’s startup script.   
 
 You can add the following function to your shell configuration file:   
-(e.g., `~/.zshrc` for ZSH, `~/.bashrc` for Bash, or `~/.bash_profile` for Bash on macOS):
+(`~/.zshrc` for ZSH, `~/.bashrc` for Bash, or `~/.bash_profile` for Bash on macOS):
 
 ```shell
+# For ZSH and BASH
 ash-source() {
     python3 /path/to/ash.py --source
     source ash-source.sh
+    rm ash-source.sh
 }
 
 # For Windows PowerShell
 ash-source() {
     python3 /path/to/ash.py --source
     . ash-source.sh
+    rm ash-source.sh
 }
 ```
 
@@ -60,7 +92,7 @@ source ~/.zshrc
 - [X] Find a way to ensure all paramters have been filled in
 - [X] Add the `ash-source` feature 
     - Sources/dot-sources every function into the current shell to act as native functions
-- [X] Update README (Adding ash as an alias, reserved keywords, using ash-source, file location)
+- [X] Update README (Adding ash as an alias, reserved keywords, using ash-source, file location, installation guide)
 
 ### MVP 3:
 - [ ] Add the `ash ash-repl` feature

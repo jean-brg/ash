@@ -1,5 +1,8 @@
-# Basic files
-.DS_Store
+# ASH FILES
+ash-source.sh
+ash.config.yaml
 
-# Test files
+# GENERIC & TEST FILES
 test*.py
+.DS_Store
+__pycache__/

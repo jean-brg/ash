@@ -1,0 +1,53 @@
+ash-config:
+    compound-separator: ":"
+    shell-executable: "/bin/zsh"
+    confirm-execution: False
+
+# ----------------------------
+# Quality of Life Functions
+# ----------------------------
+
+# Git shortcuts
+git:
+    cmd: git status
+    $desc: "Check repository status"
+    add:
+        cmd: git add .
+        $desc: "Stage all changes"
+    commit:
+        cmd: git commit -m "$1"
+        $desc: "Commit staged changes with a message"
+    push:
+        cmd: git push -u origin
+        $desc: "Push changes to origin"
+    localCommit:
+        cmd: |
+            git add .
+            git commit -m "$1"
+        $desc: "Stages and commits files locally with a message"
+    remoteCommit:
+        cmd: |
+            git add .
+            git commit -m "$1"
+            git push -u origin
+        $desc: "Stages and commits files with a message and pushes to origin"
+
+# Compress a folder
+zipFolder:
+    cmd: zip -r "$1.zip" "$1"
+    $desc: "Compress a folder into a .zip file"
+
+# Jump back to root of a git repo
+root:
+    cmd: cd "$(git rev-parse --show-toplevel)"
+    $desc: "Navigate to the root of the current Git repository"
+
+# Quick file search
+findFile:
+    cmd: find . -iname "*$1*"
+    $desc: "Search for a file by name recursively"
+
+# Run Python main file automatically
+runMain:
+    cmd: python3 $(find . -iname "main.py" | head -n 1)
+    $desc: "Find and run main.py automatically"

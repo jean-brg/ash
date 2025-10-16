@@ -30,7 +30,8 @@ def ashSource():
         sourceFile.write("\n\n".join(["{}() {{\n{}\n}}".format(command[0], '\n'.join('    ' + line if line.strip() != "" else line for line in command[1].splitlines())) for command in list(flattenCommandLegend(commandLegend, ""))]))
 
 # ARGUMENT PARSER
-if len(sys.argv) < 2: 
+if len(sys.argv) < 2:
+    print("ASH - Ready to automate")
     print("Usage: ash <command> <arguments>")
     os._exit(1)
 elif sys.argv[1] == "--source":
