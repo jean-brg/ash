@@ -14,7 +14,7 @@ with open("./ash.config.yaml", "r") as ashConfigFile:
     del rawCommandLegend["ash-config"]
     commandLegend = rawCommandLegend
 
-# AUTOCOMPLETE PARSER
+# FLAT COMMAND LEGEND PARSER
 def flattenCommandLegend(commandObject, commandPrefix = ""):
     for item in commandObject.items():
         if "cmd" in item[1].keys():
@@ -24,12 +24,18 @@ def flattenCommandLegend(commandObject, commandPrefix = ""):
             for subcmd in subCommands:
                 yield from flattenCommandLegend({subcmd: commandObject[item[0]][subcmd]}, f"{commandPrefix}:{item[0]}" if commandPrefix else item[0])
 
-flatCommandLegend = list(flattenCommandLegend(commandLegend, ""))
+# ASH-SOURCE DECLARATION
+def ashSource():
+    with open("ash-source.sh", "w") as sourceFile:
+        sourceFile.write("\n\n".join(["{}() {{\n{}\n}}".format(command[0], '\n'.join('    ' + line if line.strip() != "" else line for line in command[1].splitlines())) for command in list(flattenCommandLegend(commandLegend, ""))]))
 
 # ARGUMENT PARSER
 if len(sys.argv) < 2: 
     print("Usage: ash <command> <arguments>")
-    exit()
+    os._exit(1)
+elif sys.argv[1] == "--source":
+    ashSource()
+    os._exit(1)
 
 ashCommand = sys.argv[1]
 ashArgs = sys.argv[2:]
@@ -76,9 +82,15 @@ if ashCommand.split(ashConfig["compound-separator"])[0] in commandLegend.keys():
 
     except:
         print(f"Error - Command \"{ashCommand}\" failed to execute")
-elif ashCommand in []:
+elif ashCommand.startswith("ash-"):
     # BUILT-IN COMMANDS
-    pass
+    match ashCommand:
+        # SEE BELOW FOR ASH-SOURCE
+        case "ash-repl":
+            print("Do repl stuff")
+        
+        case _:
+            print(f"Error - Unknown built-in command \"{ashCommand}\"")
 
 else:
     print(f"Error - Command \"{ashCommand}\" not found in ASH")
