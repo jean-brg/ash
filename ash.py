@@ -24,6 +24,21 @@ def flattenCommandLegend(commandObject, commandPrefix = ""):
             for subcmd in subCommands:
                 yield from flattenCommandLegend({subcmd: commandObject[item[0]][subcmd]}, f"{commandPrefix}:{item[0]}" if commandPrefix else item[0])
 
+# ASH METADATA PARSER
+def fetchCommandMetadata(commandObject, targetCommand, commandPath=None):
+    if commandPath is None: targetParts = targetCommand.split(":")
+    else: targetParts = targetCommand
+    for key, value in commandObject.items():
+        if key.startswith("$"):
+            continue
+        if key == targetParts[0]:
+            if len(targetParts) == 1:
+                return {k[1:]: v for k, v in value.items() if k.startswith("$")}
+            result = fetchCommandMetadata(value, targetParts[1:], targetParts)
+            if result:
+                return result
+    return None
+
 # ASH-SOURCE DECLARATION
 def ashSource():
     with open("ash-source.sh", "w") as sourceFile:
@@ -33,10 +48,10 @@ def ashSource():
 if len(sys.argv) < 2:
     print("ASH - Ready to automate")
     print("Usage: ash <command> <arguments>")
-    os._exit(1)
+    os._exit(0)
 elif sys.argv[1] == "--source":
     ashSource()
-    os._exit(1)
+    os._exit(0)
 
 ashCommand = sys.argv[1]
 ashArgs = sys.argv[2:]
@@ -46,30 +61,30 @@ if ashCommand.split(ashConfig["compound-separator"])[0] in commandLegend.keys():
     # CUSTOM COMMANDS
     try:
         if ashConfig["compound-separator"] in ashCommand:
-            # COMPOUND COMMAND HANDLER
             commandKeys = ashCommand.split(ashConfig["compound-separator"])
             commandNode = commandLegend
-            
-            for idx, key in enumerate(commandKeys):
-                commandNode = commandNode.get(key)
-                if commandNode is None:
+            for key in commandKeys:
+                if key not in commandNode:
+                    print(f"DEBUG: '{key}' not found in {list(commandNode.keys())}")
+                    commandNode = None
                     break
-                if idx < len(commandKeys) - 1:
-                    commandNode = commandNode.get('subcmd', {})
-            shellCommand = commandNode.get('cmd') if isinstance(commandNode, dict) else None
-
+                commandNode = commandNode[key]
+            if isinstance(commandNode, dict):
+                shellCommand = commandNode.get("cmd")
+            else: 
+                shellCommand = None
         else:
-            # BASIC COMMAND HANDLER
             shellCommand = commandLegend[ashCommand]["cmd"]
 
         # ARGUMENT MATCHER
         argMatches = [int(match) for match in re.findall("\$([0-9]+)", shellCommand)]
-        if len(ashArgs) < max(argMatches):
-            print(f"Error - Command \"{ashCommand}\" requires {len(argMatches)} arguments, but was given {len(ashArgs)}")
-            os._exit(1)
+        if argMatches:
+            if len(ashArgs) < max(argMatches):
+                print(f"Error - Command \"{ashCommand}\" requires {len(argMatches)} arguments, but was given {len(ashArgs)}")
+                os._exit(1)
 
-        for argIndex in argMatches:
-            shellCommand = shellCommand.replace(f"${argIndex}", ashArgs[argIndex - 1])
+            for argIndex in argMatches:
+                shellCommand = shellCommand.replace(f"${argIndex}", ashArgs[argIndex - 1])
 
         # EXECUTION CONFIRMATION
         if ashConfig["confirm-execution"]:
@@ -83,13 +98,29 @@ if ashCommand.split(ashConfig["compound-separator"])[0] in commandLegend.keys():
 
     except:
         print(f"Error - Command \"{ashCommand}\" failed to execute")
+
 elif ashCommand.startswith("ash-"):
     # BUILT-IN COMMANDS
     match ashCommand:
         # SEE BELOW FOR ASH-SOURCE
         case "ash-repl":
-            print("Do repl stuff")
+            print("Unadded feature: ASH REPL")
         
+        case "ash-info":
+            if len(ashArgs) == 0:
+                print("Error - Please specify a command to get metadata for.")
+                os._exit(1)
+
+            queriedCommand = ashArgs[0]
+            queriedMetadata = fetchCommandMetadata(commandLegend, queriedCommand)
+
+            if not queriedMetadata:
+                print(f"Error - No metadata found for \"{queriedCommand}\".")
+            else:
+                print(f"Command: {queriedCommand}")
+                for metadataKey, metadataValue in queriedMetadata.items():
+                    print(f"  {metadataKey}: {metadataValue}")
+
         case _:
             print(f"Error - Unknown built-in command \"{ashCommand}\"")
 

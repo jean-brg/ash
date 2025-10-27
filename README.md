@@ -97,5 +97,5 @@ source ~/.zshrc
 ### MVP 3:
 - [ ] Add the `ash ash-repl` feature
     - A custom loop where custom functions can be called without needing the `ash` command prefix 
-- [ ] Add the `ash ash-info <command>` feature
-    - Displays the metadata of a given function, described as `$data: "..."` in the YAML file
+- [X] Add the `ash ash-info <command>` feature
+    - Displays the metadata of a given function, described as `$desc: "..."` in the YAML file
