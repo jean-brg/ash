@@ -86,6 +86,21 @@ The `ash-repl` command will run a small REPL where you can run all ASH commands 
 For it to run properly, ensure you have set the correct config value for `python-cli-command`.
 To exit the repl, type `ash-exit` or `!!`.
 
+## Contributing
+
+Contributions are welcome! If you would like to suggest improvements, report bugs, or add features, please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch for your feature or bugfix.
+3. Make your changes and commit them with clear, descriptive messages.
+4. Push your branch to your forked repository.
+5. Submit a Pull Request from your branch to this repository's main branch.
+
+Please ensure your code follows the existing style. For any questions or discussions, you can open an issue in the repository.
+
+Thank you for your contributions!
+
+
 ## Development
 ### MVP 1:
 - [X] Add parameter substitution
