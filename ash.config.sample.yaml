@@ -2,6 +2,8 @@ ash-config:
     compound-separator: ":"
     shell-executable: "/bin/zsh"
     confirm-execution: False
+    python-cli-command: "python3"
+    repl-show-return-code: False
 
 # ----------------------------
 # Quality of Life Functions

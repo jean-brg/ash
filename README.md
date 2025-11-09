@@ -81,6 +81,11 @@ And then reload the shell configurations using the appropriate file path:
 source ~/.zshrc
 ```
 
+## Using ash-repl
+The `ash-repl` command will run a small REPL where you can run all ASH commands without needing the `ash` prefix.  
+For it to run properly, ensure you have set the correct config value for `python-cli-command`.
+To exit the repl, type `ash-exit` or `!!`.
+
 ## Development
 ### MVP 1:
 - [X] Add parameter substitution
@@ -95,7 +100,10 @@ source ~/.zshrc
 - [X] Update README (Adding ash as an alias, reserved keywords, using ash-source, file location, installation guide)
 
 ### MVP 3:
-- [ ] Add the `ash ash-repl` feature
+- [X] Add the `ash ash-repl` feature
     - A custom loop where custom functions can be called without needing the `ash` command prefix 
 - [X] Add the `ash ash-info <command>` feature
     - Displays the metadata of a given function, described as `$desc: "..."` in the YAML file
+
+### MVP 4:
+- [ ] Get valuble user feedback to plan future progress

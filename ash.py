@@ -65,7 +65,7 @@ if ashCommand.split(ashConfig["compound-separator"])[0] in commandLegend.keys():
             commandNode = commandLegend
             for key in commandKeys:
                 if key not in commandNode:
-                    print(f"DEBUG: '{key}' not found in {list(commandNode.keys())}")
+                    print(f"Error - \"{key}\" not found in {list(commandNode.keys())}")
                     commandNode = None
                     break
                 commandNode = commandNode[key]
@@ -77,10 +77,10 @@ if ashCommand.split(ashConfig["compound-separator"])[0] in commandLegend.keys():
             shellCommand = commandLegend[ashCommand]["cmd"]
 
         # ARGUMENT MATCHER
-        argMatches = [int(match) for match in re.findall("\$([0-9]+)", shellCommand)]
+        argMatches = [int(match) for match in re.findall("\\$([0-9]+)", shellCommand)]
         if argMatches:
             if len(ashArgs) < max(argMatches):
-                print(f"Error - Command \"{ashCommand}\" requires {len(argMatches)} arguments, but was given {len(ashArgs)}")
+                print(f"Error - Command \"{ashCommand}\" requires {len(argMatches)} arguments, but was given {len(ashArgs)}", flush=True)
                 os._exit(1)
 
             for argIndex in argMatches:
@@ -102,9 +102,36 @@ if ashCommand.split(ashConfig["compound-separator"])[0] in commandLegend.keys():
 elif ashCommand.startswith("ash-"):
     # BUILT-IN COMMANDS
     match ashCommand:
-        # SEE BELOW FOR ASH-SOURCE
+        # SEE ABOVE FOR ASH-SOURCE
         case "ash-repl":
-            print("Unadded feature: ASH REPL")
+            while True:
+                try:
+                    ashReplInput = input("ASH > ").strip()
+                except (EOFError, KeyboardInterrupt):
+                    print()
+                    break
+
+                if not ashReplInput: 
+                    continue
+                if ashReplInput.split()[0].lower() == "ash-exit" or ashReplInput.split()[0].lower() == "!!": 
+                    break
+
+                ashReplResult = subprocess.run(
+                    f"{ashConfig['python-cli-command']} {__file__} {ashReplInput}",
+                    shell=True,
+                    cwd=os.getcwd(),
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    executable=ashConfig["shell-executable"]
+                )
+
+                if ashReplResult.stdout:
+                    print(ashReplResult.stdout.decode(errors="replace"), end="")
+                if ashReplResult.stderr:
+                    print(ashReplResult.stderr.decode(errors="replace"), end="", file=sys.stderr)
+                if ashConfig["repl-show-return-code"]:
+                    print(f"Return Code: {ashReplResult.returncode}")
+
         
         case "ash-info":
             if len(ashArgs) == 0:
